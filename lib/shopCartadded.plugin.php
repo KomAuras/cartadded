@@ -2,24 +2,24 @@
 
 class shopCartaddedPlugin extends shopPlugin
 {
+    // заполняем данные в хуке frontend_order_cart_vars
+    // в переменную after_items
     public function frontendCartAdded()
     {
-        $code = waRequest::cookie('shop_cart');
-        if (!$code) {
-            return '';
-        }
-        $cart = new shopCart($code);
+        $class = new shopCartaddedPluginBase();
+        $result = $class->getData();
 
-        if ($cart->discount() > 0) {
-
-            $view = wa()->getView();
-            $view->assign(array(
-                'percent' => round($cart->discount() / ($cart->total() + $cart->discount()) * 100)
-            ));
-
+        if ($result) {
             return [
-                'after_items' => $view->fetch($this->path . '/templates/hooks/frontendCartAdded.html')
+                'after_items' => $result
             ];
         }
+    }
+
+    // добавялем загрузку JS файла на сайте
+    public function frontendFoot()
+    {
+        $view = wa()->getView();
+        return $view->fetch($this->path . '/templates/frontend/script.html');
     }
 }
